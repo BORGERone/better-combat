@@ -51,6 +51,16 @@ public class ServerConfig {
    public static final DoubleValue GRAPPLE_ENERGY_PER_SECOND;
    public static final ConfigValue<List<? extends String>> GRAPPLE_ENTITY_BLACKLIST;
    public static final ConfigValue<List<? extends String>> GRAPPLE_ENTITY_WHITELIST;
+   public static final BooleanValue ENABLE_MALLARD_GUARD_COMPAT;
+   public static final DoubleValue MALLARD_BLOCK_ENERGY_COST;
+   public static final DoubleValue MALLARD_BLOCK_FATAL_ENERGY_COST;
+   public static final DoubleValue MALLARD_PARRY_ENERGY_COST;
+   public static final DoubleValue MALLARD_PERFECT_PARRY_REFUND;
+   public static final BooleanValue MALLARD_GUARD_REQUIRES_STAMINA;
+   public static final BooleanValue MALLARD_SHIELD_BLOCK_COSTS_STAMINA;
+   public static final BooleanValue OFFHAND_SHIELD_DISABLES_PARRY;
+   public static final BooleanValue OFFHAND_SHIELD_FORCES_VANILLA_BLOCKING;
+   public static final BooleanValue DISABLE_PARRY_WITH_MALLARD_GUARD;
    public static Set<String> mobSoundWhitelistSet = Set.of();
 
    private static String getSoundKey(SoundEvent soundEvent) {
@@ -103,6 +113,86 @@ public class ServerConfig {
          return ((Double)GRAPPLE_ENERGY_PER_SECOND.get()).floatValue();
       } catch (IllegalStateException e) {
          return 1.0F;
+      }
+   }
+
+   public static boolean enableMallardGuardCompat() {
+      try {
+         return (Boolean)ENABLE_MALLARD_GUARD_COMPAT.get();
+      } catch (IllegalStateException e) {
+         return true;
+      }
+   }
+
+   public static float mallardBlockEnergyCost() {
+      try {
+         return ((Double)MALLARD_BLOCK_ENERGY_COST.get()).floatValue();
+      } catch (IllegalStateException e) {
+         return 2.0F;
+      }
+   }
+
+   public static float mallardBlockFatalEnergyCost() {
+      try {
+         return ((Double)MALLARD_BLOCK_FATAL_ENERGY_COST.get()).floatValue();
+      } catch (IllegalStateException e) {
+         return 4.0F;
+      }
+   }
+
+   public static float mallardParryEnergyCost() {
+      try {
+         return ((Double)MALLARD_PARRY_ENERGY_COST.get()).floatValue();
+      } catch (IllegalStateException e) {
+         return 2.0F;
+      }
+   }
+
+   public static float mallardPerfectParryRefund() {
+      try {
+         return ((Double)MALLARD_PERFECT_PARRY_REFUND.get()).floatValue();
+      } catch (IllegalStateException e) {
+         return 0.0F;
+      }
+   }
+
+   public static boolean mallardGuardRequiresStamina() {
+      try {
+         return (Boolean)MALLARD_GUARD_REQUIRES_STAMINA.get();
+      } catch (IllegalStateException e) {
+         return true;
+      }
+   }
+
+   public static boolean mallardShieldBlockCostsStamina() {
+      try {
+         return (Boolean)MALLARD_SHIELD_BLOCK_COSTS_STAMINA.get();
+      } catch (IllegalStateException e) {
+         return false;
+      }
+   }
+
+   public static boolean offhandShieldDisablesParry() {
+      try {
+         return (Boolean)OFFHAND_SHIELD_DISABLES_PARRY.get();
+      } catch (IllegalStateException e) {
+         return true;
+      }
+   }
+
+   public static boolean offhandShieldForcesVanillaBlocking() {
+      try {
+         return (Boolean)OFFHAND_SHIELD_FORCES_VANILLA_BLOCKING.get();
+      } catch (IllegalStateException e) {
+         return true;
+      }
+   }
+
+   public static boolean disableParryWithMallardGuard() {
+      try {
+         return (Boolean)DISABLE_PARRY_WITH_MALLARD_GUARD.get();
+      } catch (IllegalStateException e) {
+         return false;
       }
    }
 
@@ -261,6 +351,21 @@ public class ServerConfig {
       GRAPPLE_ENERGY_PER_SECOND = BUILDER.defineInRange("grapple_energy_per_second", 1.0, 0.0, 10.0);
       GRAPPLE_ENTITY_BLACKLIST = BUILDER.defineList("grapple_entity_blacklist", List.of("minecraft:armor_stand"), obj -> obj instanceof String);
       GRAPPLE_ENTITY_WHITELIST = BUILDER.defineList("grapple_entity_whitelist", List.of(), obj -> obj instanceof String);
+      BUILDER.pop();
+      BUILDER.comment(
+            "────────────────────────────────────────────────────────────────\n\n🛡️ Block Stamina & Shield Settings\n\n• Mallard Guard compatibility: regular weapon blocks and\ntimed parries now consume stamina. A perfect parry stays free.\n\n• Stamina scale: total bar = 10.0 (5 pods × 2.0; half a pod = 1.0)\n• A block that would kill you uses the fatal cost\n• With a shield in the off hand the parry mechanic is disabled\nand the right mouse button blocks like vanilla"
+         )
+         .push("Block Stamina & Shield Settings");
+      ENABLE_MALLARD_GUARD_COMPAT = BUILDER.define("enable_mallard_guard_compat", true);
+      MALLARD_BLOCK_ENERGY_COST = BUILDER.defineInRange("mallard_block_energy_cost", 2.0, 0.0, 10.0);
+      MALLARD_BLOCK_FATAL_ENERGY_COST = BUILDER.defineInRange("mallard_block_fatal_energy_cost", 4.0, 0.0, 10.0);
+      MALLARD_PARRY_ENERGY_COST = BUILDER.defineInRange("mallard_parry_energy_cost", 2.0, 0.0, 10.0);
+      MALLARD_PERFECT_PARRY_REFUND = BUILDER.defineInRange("mallard_perfect_parry_refund", 0.0, 0.0, 10.0);
+      MALLARD_GUARD_REQUIRES_STAMINA = BUILDER.define("mallard_guard_requires_stamina", true);
+      MALLARD_SHIELD_BLOCK_COSTS_STAMINA = BUILDER.define("mallard_shield_block_costs_stamina", false);
+      OFFHAND_SHIELD_DISABLES_PARRY = BUILDER.define("offhand_shield_disables_parry", true);
+      OFFHAND_SHIELD_FORCES_VANILLA_BLOCKING = BUILDER.define("offhand_shield_forces_vanilla_blocking", true);
+      DISABLE_PARRY_WITH_MALLARD_GUARD = BUILDER.define("disable_parry_with_mallard_guard", false);
       BUILDER.pop();
       BUILDER.comment("────────────────────────────────────────────────────────────────\n\n⚙ Miscellaneous").push("Miscellaneous");
       ENABLE_CUSTOM_CRITICAL_SOUNDS = BUILDER.define("enable_custom_critical_sounds", true);

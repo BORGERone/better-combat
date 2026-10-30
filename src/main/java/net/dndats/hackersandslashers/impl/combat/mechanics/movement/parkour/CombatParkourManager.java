@@ -248,6 +248,14 @@ public class CombatParkourManager {
       if (forward == 0.0F && strafe == 0.0F) {
          forward = 1.0F;
          strength = isTwoHanded ? 0.35F : 0.6F;
+      } else {
+         // Diagonals used to add both axes together (forward + side), which made a dash/roll up to
+         // 41% longer than a straight one. Normalising the input keeps every direction identical.
+         double inputLength = Math.sqrt((double)(forward * forward + strafe * strafe));
+         if (inputLength > 1.0) {
+            forward = (float)(forward / inputLength);
+            strafe = (float)(strafe / inputLength);
+         }
       }
 
       if (player.isCrouching()) {
